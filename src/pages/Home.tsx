@@ -4,6 +4,7 @@ import { getDayDate } from "../utils/getDayDate"
 import DayDate from "../components/DayDate"
 import { Clock, Sparkles } from "lucide-react"
 import PageHeader from "../components/PageHeader"
+import useTitle from "@/hooks/useTitle"
 
 interface Schedule {
     name: string
@@ -81,6 +82,7 @@ const statusConfig: Record<Status, {
 }
 
 function Home() {
+    useTitle("AttendEase")
     const [scheduleWithStatus, setScheduleWithStatus] = useState<Schedule[] | null>(null)
     const { day } = getDayDate()
     const [currentTime, setCurrentTime] = useState(new Date())

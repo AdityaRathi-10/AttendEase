@@ -5,6 +5,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { ClipboardCheck, BookOpen, ChevronLeft, Check, X } from "lucide-react"
 import type { DayEventHandler } from "react-day-picker"
 import PageHeader from "@/components/PageHeader"
+import useTitle from "@/hooks/useTitle"
 
 interface PopoverPos { top: number; left: number }
 
@@ -57,6 +58,7 @@ function AttendanceRing({ pct, size = 44, stroke = 3.5, minAttendance = 75 }: {
 }
 
 function Attendance() {
+    useTitle("Attendance")
     const { settings } = useSettings()
     const [coursesWithPct, setCoursesWithPct] = useState<CourseWithPct[] | null>(null)
     const [selectedCourse, setSelectedCourse] = useState<ICourse | null>(null)

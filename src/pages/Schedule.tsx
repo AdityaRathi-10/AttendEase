@@ -13,6 +13,7 @@ import {
     DialogOverlay,
     DialogTitle,
 } from "@/components/ui/dialog"
+import useTitle from "@/hooks/useTitle"
 
 const days: TDay[] = [
     Day.Sunday,
@@ -25,6 +26,7 @@ const days: TDay[] = [
 ]
 
 function Schedule() {
+    useTitle("Schedule")
     const [searchParams, setSearchParams] = useSearchParams()
 
     const getDayFromParams = (): TDay => {

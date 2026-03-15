@@ -12,6 +12,7 @@ import {
     DialogOverlay,
     DialogTitle,
 } from "@/components/ui/dialog"
+import useTitle from "@/hooks/useTitle"
 
 interface CourseWithSchedules {
     course: ICourse
@@ -32,6 +33,7 @@ const groupByDay = (schedules: ISchedule[]) => {
 }
 
 function Courses() {
+    useTitle("Courses")
     const [items, setItems] = useState<CourseWithSchedules[] | null>(null)
     const [view, setView] = useState<View>({ type: "list" })
 
