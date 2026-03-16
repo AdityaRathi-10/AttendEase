@@ -13,10 +13,30 @@ const DEFAULTS: AppSettings = {
 
 const KEY = "app_settings"
 
+const THEME_COLORS = {
+    light: "#dde3f5",
+    dark:  "#0d0c18",
+}
+
+function applyTheme(theme: "dark" | "light") {
+    const root = document.documentElement
+    if (theme === "dark") {
+        root.classList.add("dark")
+        root.classList.remove("light")
+    } else {
+        root.classList.remove("dark")
+        root.classList.add("light")
+    }
+    const color = THEME_COLORS[theme]
+    document
+        .querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')
+        .forEach(el => { el.content = color })
+}
+
 const SettingsContext = createContext<{
     settings: AppSettings
     update: (patch: Partial<AppSettings>) => void
-}>({ settings: DEFAULTS, update: () => { } })
+}>({ settings: DEFAULTS, update: () => {} })
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
     const [settings, setSettings] = useState<AppSettings>(() => {
@@ -36,16 +56,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         })
     }
 
-    // This is the only thing needed — shadcn reads .dark from <html>
     useEffect(() => {
-        const root = document.documentElement
-        if (settings.theme === "dark") {
-            root.classList.add("dark")
-            root.classList.remove("light")
-        } else {
-            root.classList.remove("dark")
-            root.classList.add("light")
-        }
+        applyTheme(settings.theme)
     }, [settings.theme])
 
     return (

@@ -226,12 +226,17 @@
         @apply font-sans;
         /* Smooth momentum scroll on iOS */
         -webkit-overflow-scrolling: touch;
+        /* Extend into the top safe area so bg fills behind the status bar */
+        padding-top: env(safe-area-inset-top);
     }
     html {
         @apply font-sans;
         /* Prevent font inflation on orientation change */
         -webkit-text-size-adjust: 100%;
         text-size-adjust: 100%;
+        /* Fill the entire screen incl. safe areas with the app background color */
+        background-color: var(--app-bg);
+        min-height: 100dvh;
     }
     /* Prevent iOS zoom on input focus — must be 16px or larger */
     input,
