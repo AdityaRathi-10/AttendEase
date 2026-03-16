@@ -228,7 +228,7 @@ function Attendance() {
                                 <BookOpen className="w-6 h-6" style={{ color: "var(--app-text-faint)" }} />
                             </div>
                             <p className="text-sm font-medium" style={{ color: "var(--app-text-secondary)" }}>No courses found</p>
-                            <p className="text-xs mt-1" style={{ color: "var(--app-text-faint)" }}>Add courses in the Courses tab first.</p>
+                            <p className="text-xs mt-1" style={{ color: "var(--app-text-faint)" }}>Add courses in the <strong>Courses</strong> tab first.</p>
                         </div>
                     ) : (
                         coursesWithPct!.map(({ course, pct: coursePct }) => (

@@ -13,9 +13,9 @@ const DEFAULTS: AppSettings = {
 
 const KEY = "app_settings"
 
-const THEME_COLORS = {
-    light: "#dde3f5",
-    dark:  "#0d0c18",
+const THEME_BG: Record<"light" | "dark", string> = {
+    light: "#e0e8f7",
+    dark:  "#020205",
 }
 
 function applyTheme(theme: "dark" | "light") {
@@ -27,7 +27,9 @@ function applyTheme(theme: "dark" | "light") {
         root.classList.remove("dark")
         root.classList.add("light")
     }
-    const color = THEME_COLORS[theme]
+
+    const color = THEME_BG[theme]
+
     document
         .querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')
         .forEach(el => { el.content = color })

@@ -215,8 +215,12 @@
 }
 
 @layer base {
-    * {
+    /* Apply border/outline to everything EXCEPT html and body
+       to prevent hairline artifacts in safe-area zones */
+    *:not(html):not(body) {
         @apply border-border outline-ring/50;
+    }
+    * {
         /* Remove tap flash on mobile */
         -webkit-tap-highlight-color: transparent;
     }
@@ -234,9 +238,18 @@
         /* Prevent font inflation on orientation change */
         -webkit-text-size-adjust: 100%;
         text-size-adjust: 100%;
-        /* Fill the entire screen incl. safe areas with the app background color */
+        /* Fill entire screen including safe-area zones with app background.
+           This is what makes the top strip and bottom bar match the theme. */
         background-color: var(--app-bg);
         min-height: 100dvh;
+        /* Kill any hairline border that bleeds from the * rule */
+        border: none !important;
+        outline: none !important;
+    }
+    body {
+        /* Also explicitly zero border/outline on body */
+        border: none !important;
+        outline: none !important;
     }
     /* Prevent iOS zoom on input focus — must be 16px or larger */
     input,

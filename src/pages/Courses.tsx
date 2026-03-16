@@ -129,7 +129,7 @@ function Courses() {
                             <Clock className="w-5 h-5" style={{ color: "var(--app-text-faint)" }} />
                         </div>
                         <p className="text-sm font-medium" style={{ color: "var(--app-text-secondary)" }}>No schedule yet</p>
-                        <p className="text-xs mt-1" style={{ color: "var(--app-text-faint)" }}>Go to the Schedule tab to assign timings.</p>
+                        <p className="text-xs mt-1" style={{ color: "var(--app-text-faint)" }}>Go to the <strong>Schedule</strong> tab to assign timings.</p>
                     </div>
                 ) : (
                     <div className="space-y-3">
