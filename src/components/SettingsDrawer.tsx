@@ -1,6 +1,8 @@
 import { useState } from "react"
 import { useSettings } from "../context/SettingsContext"
-import { SlidersHorizontal, GraduationCap, Sun, Moon, X, Check } from "lucide-react"
+import { SlidersHorizontal, GraduationCap, Sun, Moon, X, Check, Bell, BellRing, BellOff } from "lucide-react"
+import { getToken } from "firebase/messaging"
+import { messaging } from "@/lib/firebase"
 
 interface Props {
     open: boolean
@@ -12,6 +14,7 @@ function SettingsDrawer({ open, onClose }: Props) {
     const [editingAttendance, setEditingAttendance] = useState(false)
     const [attendanceInput, setAttendanceInput] = useState(String(settings.minAttendance))
     const [inputError, setInputError] = useState("")
+    const [permission, setPermission] = useState(Notification.permission);
 
     const startEdit = () => {
         setAttendanceInput(String(settings.minAttendance))
@@ -33,6 +36,30 @@ function SettingsDrawer({ open, onClose }: Props) {
     const cancelEdit = () => {
         setEditingAttendance(false)
         setInputError("")
+    }
+
+    async function handleEnableNotifications() {
+        if (permission === "default") {
+            const newPermission = await Notification.requestPermission();
+            setPermission(newPermission);
+
+            if (newPermission === "granted") {
+                const token = await getToken(messaging, {
+                    vapidKey: import.meta.env.VITE_FIREBASE_VALID_KEY,
+                });
+            }
+        }
+
+        else if (permission === "denied") {
+            alert("You have blocked notifications. Please enable them from browser settings.");
+        }
+
+        else if (permission === "granted") {
+            alert("Notifications are enabled. Disable them from browser settings.");
+            const token = await getToken(messaging, {
+                vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+            });
+        }
     }
 
     const isLight = settings.theme === "light"
@@ -237,7 +264,47 @@ function SettingsDrawer({ open, onClose }: Props) {
                             </div>
                         )}
                     </div>
+                    <div
+                        className="flex items-center justify-between px-4 py-3.5 rounded-2xl"
+                        style={{
+                            border: "1px solid var(--app-border)",
+                            background: "var(--app-bg-card)",
+                        }}
+                    >
+                        <div className="flex items-center gap-3">
+                            <Bell
+                                className="w-4 h-4"
+                                style={{ color: "var(--app-accent)" }}
+                            />
+                            <div>
+                                <p
+                                    className="text-sm font-semibold"
+                                    style={{ color: "var(--app-text-primary)" }}
+                                >
+                                    Notifications
+                                </p>
+                            </div>
+                        </div>
 
+                        {/* Toggle pill */}
+                        <div className="mr-2" onClick={handleEnableNotifications}>
+
+                            {
+                                permission === "default" ? (
+                                    <Bell />
+                                ) : (
+                                    permission === "granted" ? (
+                                        <BellRing />
+                                    ) : (
+                                        <BellOff
+                                            className="mr-2"
+                                            onClick={() => alert("Please enable notifications from browser settings")}
+                                        />
+                                    )
+                                )
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
         </>
