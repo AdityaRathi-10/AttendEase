@@ -4,18 +4,20 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 export interface AppSettings {
     minAttendance: number
     theme: "dark" | "light"
+    fcmToken: string | null
 }
 
 const DEFAULTS: AppSettings = {
     minAttendance: 75,
     theme: "light",
+    fcmToken: null,
 }
 
 const KEY = "app_settings"
 
 const THEME_BG: Record<"light" | "dark", string> = {
     light: "#e0e8f7",
-    dark:  "#020205",
+    dark: "#020205",
 }
 
 function applyTheme(theme: "dark" | "light") {
@@ -38,7 +40,7 @@ function applyTheme(theme: "dark" | "light") {
 const SettingsContext = createContext<{
     settings: AppSettings
     update: (patch: Partial<AppSettings>) => void
-}>({ settings: DEFAULTS, update: () => {} })
+}>({ settings: DEFAULTS, update: () => { } })
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
     const [settings, setSettings] = useState<AppSettings>(() => {
@@ -53,6 +55,12 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     const update = (patch: Partial<AppSettings>) => {
         setSettings(prev => {
             const next = { ...prev, ...patch }
+
+            const prevStr = JSON.stringify(prev)
+            const nextStr = JSON.stringify(next)
+
+            if (prevStr === nextStr) return prev
+
             localStorage.setItem(KEY, JSON.stringify(next))
             return next
         })

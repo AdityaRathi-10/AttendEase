@@ -39,26 +39,38 @@ function SettingsDrawer({ open, onClose }: Props) {
     }
 
     async function handleEnableNotifications() {
-        if (permission === "default") {
-            const newPermission = await Notification.requestPermission();
-            setPermission(newPermission);
+        const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY
 
-            if (newPermission === "granted") {
-                const token = await getToken(messaging, {
-                    vapidKey: import.meta.env.VITE_FIREBASE_VALID_KEY,
-                });
+        try {
+            if (permission === "default") {
+                const newPermission = await Notification.requestPermission();
+                setPermission(newPermission);
+
+                if (newPermission === "granted") {
+                    const token = await getToken(messaging, {
+                        vapidKey,
+                    });
+
+                    if (settings.fcmToken === token) return
+                    update({ fcmToken: token })
+                }
             }
-        }
 
-        else if (permission === "denied") {
-            alert("You have blocked notifications. Please enable them from browser settings.");
-        }
+            else if (permission === "denied") {
+                alert("You have blocked notifications. Please enable them from browser settings.");
+            }
 
-        else if (permission === "granted") {
-            alert("Notifications are enabled. Disable them from browser settings.");
-            const token = await getToken(messaging, {
-                vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
-            });
+            else if (permission === "granted") {
+                alert("Notifications are enabled. Disable them from browser settings.");
+                const token = await getToken(messaging, {
+                    vapidKey,
+                });
+
+                if (settings.fcmToken === token) return
+                update({ fcmToken: token })
+            }
+        } catch (error) {
+            console.error("Failed to get FCM token:", error)
         }
     }
 
