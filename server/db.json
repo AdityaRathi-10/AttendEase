@@ -1,0 +1,25 @@
+{
+  "e305b6bc-e44c-4f3f-a30a-ec4c1517396c": {
+    "fcmToken": "dp8wPvP9J2zJ5Fh3SMgw3Q:APA91bGtjOQpVmzjO0arjm4DymQ4v11Xg2Yy68ZF7T94Uinj8OAYka0rdNjJU-suNzYf4OUnDrAXZEcgXJD2Kt0npJdZq7zAOdShZh5cCoUQEli8bb6NCBw",
+    "schedules": [
+      {
+        "courseName": "sdfdsf",
+        "notifyAt": "2026-04-11T14:37:00.000Z",
+        "day": "Saturday",
+        "sent": true
+      },
+      {
+        "courseName": "maths",
+        "notifyAt": "2026-04-11T17:46:00.000Z",
+        "day": "Saturday",
+        "sent": true
+      },
+      {
+        "courseName": "sdfdsf",
+        "notifyAt": "2026-04-11T16:53:00.000Z",
+        "day": "Monday",
+        "sent": true
+      }
+    ]
+  }
+}
