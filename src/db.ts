@@ -21,16 +21,26 @@ export interface IAttendance {
     status: "present" | "absent" | null;
 }
 
+export interface INote {
+    id?: number;
+    courseId: number;
+    date: string;
+    content: string;
+    mediaUrls: string[];
+}
+
 const db = new Dexie("ScheduleDB") as Dexie & {
     courses: EntityTable<ICourse, "id">;
     schedules: EntityTable<ISchedule, "id">;
     attendance: EntityTable<IAttendance, "id">;
+    notes: EntityTable<INote, "id">;
 };
 
 db.version(1).stores({
     courses: "++id, name",
     schedules: "++id, courseId, day",
     attendance: "++id, courseId, date",
+    notes: "++id, courseId, date",
 });
 
 export { db };
