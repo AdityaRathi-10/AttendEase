@@ -8,6 +8,7 @@ import Schedule from "./pages/Schedule"
 import Attendance from "./pages/Attendance"
 import SplashScreen from "./components/SplashScreen"
 import { syncWithBackend } from "./utils/syncWithBackend"
+import CourseNotes from "./pages/CourseNotes"
 
 function AppShell() {
     const { settings } = useSettings()
@@ -31,6 +32,7 @@ function AppShell() {
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/courses" element={<Courses />} />
+                        <Route path="/courses/:id" element={<CourseNotes />} />
                         <Route path="/schedule" element={<Schedule />} />
                         <Route path="/attendance" element={<Attendance />} />
                     </Routes>

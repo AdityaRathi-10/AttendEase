@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react"
 import { db, type ISchedule } from "../db"
-import { getDayDate } from "../utils/getDayDate"
+import { getDayDate } from "../components/DayDate"
 import DayDate from "../components/DayDate"
 import { Clock, Sparkles } from "lucide-react"
 import PageHeader from "../components/PageHeader"
 import useTitle from "@/hooks/useTitle"
+import { Link, useSearchParams } from "react-router-dom"
 
 interface Schedule {
     name: string
@@ -16,7 +17,15 @@ const convertToSeconds = (time: string) => {
     return hour * 3600 + minute * 60
 }
 
-const checkForClassStatus = (startTime: string, endTime: string, now: Date) => {
+const checkForClassStatus = (startTime: string, endTime: string, now: Date, date: string) => {
+    if(date) {
+        const [y, m, d] = date.split("-").map(Number)
+        const parsed = new Date(y, m - 1, d)
+        if(parsed.toLocaleDateString() !== now.toLocaleDateString()) {
+            if(parsed.getTime() > now.getTime()) return "Pending"
+            else if(parsed.getTime() < now.getTime()) return "Finished"
+        }
+    }
     const nowSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds()
     const startSec = convertToSeconds(startTime)
     const endSec = convertToSeconds(endTime)
@@ -83,13 +92,19 @@ const statusConfig: Record<Status, {
 
 function Home() {
     useTitle("AttendEase")
+    const [searchParams] = useSearchParams()
+    const dateParam = searchParams.get("date") // YYYY-MM-DD or null
+
     const [scheduleWithStatus, setScheduleWithStatus] = useState<Schedule[] | null>(null)
-    const { day } = getDayDate()
     const [currentTime, setCurrentTime] = useState(new Date())
     const [initializing, setInitializing] = useState(true)
 
+    // Derive the day name from the date param (or today)
+    const { day } = getDayDate(dateParam)
+
     useEffect(() => {
         setInitializing(true)
+        setScheduleWithStatus(null)
         const load = async () => {
             try {
                 const scheduleData = await db.schedules.where("day").equals(day).toArray()
@@ -124,7 +139,7 @@ function Home() {
             <PageHeader
                 eyebrow="Today's Classes"
                 eyebrowIcon={<Sparkles className="w-3.5 h-3.5" />}
-                title={<DayDate />}
+                title={<DayDate dateParam={dateParam} />}
             />
 
             {scheduleWithStatus === null ? null : scheduleWithStatus.length === 0 ? (
@@ -139,80 +154,82 @@ function Home() {
                         <Sparkles className="w-7 h-7" style={{ color: "var(--app-text-faint)" }} />
                     </div>
                     <h1 className="text-lg font-bold mb-1" style={{ color: "var(--app-text-primary)" }}>
-                        No classes today
+                        No classes {dateParam ? "on this day" : "today"}
                     </h1>
-                    <p className="text-sm" style={{ color: "var(--app-text-faint)" }}>Enjoy your free day.</p>
+                    <p className="text-sm" style={{ color: "var(--app-text-faint)" }}>
+                        {dateParam ? "Nothing scheduled for this date." : "Enjoy your free day."}
+                    </p>
                 </div>
             ) : (
                 <div className="space-y-3">
                     {scheduleWithStatus.map((item, index) => {
-                        const status = checkForClassStatus(
-                            item.scheduleData.fromTime,
-                            item.scheduleData.toTime,
-                            currentTime
-                        ) as Status
+                        const status = checkForClassStatus(item.scheduleData.fromTime, item.scheduleData.toTime, currentTime, dateParam!) as Status
                         const cfg = statusConfig[status]
 
                         return (
-                            <div
+                            <Link
                                 key={item.scheduleData.id}
-                                className="rounded-2xl border-l-4 backdrop-blur-sm transition-all duration-300 overflow-hidden"
-                                style={{
-                                    background: cfg.cardBg,
-                                    border: `1px solid ${cfg.cardBorder}`,
-                                    borderLeftColor: cfg.borderColor,
-                                    borderLeftWidth: "4px",
-                                    opacity: cfg.opacity,
-                                }}
+                                to={`/courses/${item.scheduleData.id}?date=${dateParam}`}
+                                className="block"
                             >
-                                <div className="px-4 py-3.5">
-                                    <div className="flex items-center justify-between gap-3">
-                                        <div className="flex items-center gap-3 min-w-0">
+                                <div
+                                    className="rounded-2xl backdrop-blur-sm transition-all duration-300 overflow-hidden"
+                                    style={{
+                                        background: cfg.cardBg,
+                                        border: `1px solid ${cfg.cardBorder}`,
+                                        boxShadow: `inset 4px 0 0 ${cfg.borderColor}`,
+                                        opacity: cfg.opacity,
+                                    }}
+                                >
+                                    <div className="px-4 py-3.5">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <div className="flex items-center gap-3 min-w-0">
+                                                <span
+                                                    className="shrink-0 w-6 h-6 rounded-lg flex items-center justify-center text-xs font-mono"
+                                                    style={{
+                                                        background: "var(--app-bg-muted)",
+                                                        border: "1px solid var(--app-border)",
+                                                        color: "var(--app-text-faint)",
+                                                    }}
+                                                >
+                                                    {String(index + 1).padStart(2, "0")}
+                                                </span>
+                                                <span
+                                                    className="font-semibold truncate text-sm"
+                                                    style={{ color: "var(--app-text-primary)" }}
+                                                >
+                                                    {item.name}
+                                                </span>
+                                            </div>
                                             <span
-                                                className="shrink-0 w-6 h-6 rounded-lg flex items-center justify-center text-xs font-mono"
+                                                className="shrink-0 text-xs px-2.5 py-1 rounded-full font-medium flex items-center gap-1.5"
                                                 style={{
-                                                    background: "var(--app-bg-muted)",
-                                                    border: "1px solid var(--app-border)",
-                                                    color: "var(--app-text-faint)",
+                                                    background: cfg.badgeBg,
+                                                    border: `1px solid ${cfg.badgeBorder}`,
+                                                    color: cfg.badgeText,
                                                 }}
                                             >
-                                                {String(index + 1).padStart(2, "0")}
-                                            </span>
-                                            <span
-                                                className="font-semibold truncate text-sm"
-                                                style={{ color: "var(--app-text-primary)" }}
-                                            >
-                                                {item.name}
+                                                <span
+                                                    className={`w-1.5 h-1.5 rounded-full ${cfg.dotPulse ? "animate-pulse" : ""}`}
+                                                    style={{ background: cfg.dotColor }}
+                                                />
+                                                {status}
                                             </span>
                                         </div>
-                                        <span
-                                            className="shrink-0 text-xs px-2.5 py-1 rounded-full font-medium flex items-center gap-1.5"
-                                            style={{
-                                                background: cfg.badgeBg,
-                                                border: `1px solid ${cfg.badgeBorder}`,
-                                                color: cfg.badgeText,
-                                            }}
+                                        <div
+                                            className="mt-2 ml-9 flex items-center gap-1.5 text-xs"
+                                            style={{ color: "var(--app-text-faint)" }}
                                         >
-                                            <span
-                                                className={`w-1.5 h-1.5 rounded-full ${cfg.dotPulse ? "animate-pulse" : ""}`}
-                                                style={{ background: cfg.dotColor }}
-                                            />
-                                            {status}
-                                        </span>
-                                    </div>
-                                    <div
-                                        className="mt-2 ml-9 flex items-center gap-1.5 text-xs"
-                                        style={{ color: "var(--app-text-faint)" }}
-                                    >
-                                        <Clock className="w-3 h-3" />
-                                        <span className="font-mono">
-                                            {item.scheduleData.fromTime}
-                                            <span className="mx-1.5" style={{ color: "var(--app-border-strong)" }}>-</span>
-                                            {item.scheduleData.toTime}
-                                        </span>
+                                            <Clock className="w-3 h-3" />
+                                            <span className="font-mono">
+                                                {item.scheduleData.fromTime}
+                                                <span className="mx-1.5" style={{ color: "var(--app-border-strong)" }}>–</span>
+                                                {item.scheduleData.toTime}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </Link>
                         )
                     })}
                 </div>
